@@ -82,7 +82,8 @@ static void generateList(Menu* m)
 	const char* dirs[] = {
 		"00030004",
 		"00030005",
-		"00030015"
+		"00030015",
+		"00030017"
 	};
 
 	//Reset menu

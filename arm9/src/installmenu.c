@@ -8,7 +8,10 @@
 
 enum {
 	INSTALL_MENU_INSTALL,
-	INSTALL_MENU_SYSTEM_TITLE,
+	INSTALL_MENU_04,
+	INSTALL_MENU_05,
+	INSTALL_MENU_15,
+	INSTALL_MENU_17,
 	INSTALL_MENU_DELETE,
 	INSTALL_MENU_BACK
 };
@@ -96,11 +99,20 @@ void installMenu()
 						switch (subMenu())
 						{
 							case INSTALL_MENU_INSTALL:
-								install(m->items[m->cursor].value, false);
+								install(m->items[m->cursor].value, false, false, false, false);
 								break;
 								
-							case INSTALL_MENU_SYSTEM_TITLE:
-								install(m->items[m->cursor].value, true);
+							case INSTALL_MENU_04:
+								install(m->items[m->cursor].value, true, false, false, false);
+								break;
+							case INSTALL_MENU_05:
+								install(m->items[m->cursor].value, false, true, false, false);
+								break;
+							case INSTALL_MENU_15:
+								install(m->items[m->cursor].value, false, false, true, false);
+								break;
+							case INSTALL_MENU_17:
+								install(m->items[m->cursor].value, false, false, false, true);
 								break;
 
 							case INSTALL_MENU_DELETE:
@@ -190,10 +202,12 @@ static void generateList(Menu* m)
 					strstr(ent->d_name, ".app") != NULL ||
 					strstr(ent->d_name, ".dsi") != NULL ||
 					strstr(ent->d_name, ".cia") != NULL ||
+					strstr(ent->d_name, ".srl") != NULL ||
 					strstr(ent->d_name, ".NDS") != NULL ||
 					strstr(ent->d_name, ".APP") != NULL ||
 					strstr(ent->d_name, ".DSI") != NULL ||
-					strstr(ent->d_name, ".CIA") != NULL)
+					strstr(ent->d_name, ".CIA") != NULL ||
+					strstr(ent->d_name, ".SRL") != NULL)
 				{
 					if (count < m->page * ITEMS_PER_PAGE)
 						count += 1;
@@ -246,8 +260,11 @@ static int subMenu()
 
 	Menu* m = newMenu();
 
-	addMenuItem(m, "Install", NULL, 0);
-	addMenuItem(m, "Install as System Title", NULL, 0);
+	addMenuItem(m, "Install to default", NULL, 0);
+	addMenuItem(m, "Install to 04", NULL, 0);
+	addMenuItem(m, "Install to 05", NULL, 0);
+	addMenuItem(m, "Install to 15", NULL, 0);
+	addMenuItem(m, "Install to 17", NULL, 0);
 	addMenuItem(m, "Delete", NULL, 0);
 	addMenuItem(m, "Back - [B]", NULL, 0);
 

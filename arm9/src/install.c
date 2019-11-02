@@ -59,7 +59,7 @@ static bool _iqueHack(tDSiHeader* h)
 
 	if (h->ndshdr.reserved1[8] == 0x80)
 	{
-		iprintf("iQue Hack...");	
+		iprintf("iQue header patch...");	
 		
 		h->ndshdr.reserved1[8] = 0x00;
 
@@ -280,8 +280,7 @@ static void _createBannerSav(tDSiHeader* h, char* dataPath)
 	}
 }
 
-bool install(char* fpath, bool systemTitle)
-{
+bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool Install17) {
 	bool result = false;
 
 	//confirmation message
@@ -303,37 +302,18 @@ bool install(char* fpath, bool systemTitle)
 
 	tDSiHeader* h = getRomHeader(fpath);	
 
-	if (!h)
-	{
+	if (!h) {
 		iprintf("\x1B[31m");	//red
 		iprintf("Error: ");
 		iprintf("\x1B[33m");	//yellow
 		iprintf("Could not open file.\n");
 		iprintf("\x1B[47m");	//white
 		goto error;
-	}
-	else
-	{
+	} else {
 		bool fixHeader = false;
 
 		if (_patchGameCode(h))
 			fixHeader = true;
-
-		//title id must be one of these
-		if (h->tid_high == 0x00030004 ||
-			h->tid_high == 0x00030005 ||
-			h->tid_high == 0x00030015 ||
-			h->tid_high == 0x00030017)
-		{}
-		else
-		{
-			iprintf("\x1B[31m");	//red
-			iprintf("Error: ");
-			iprintf("\x1B[33m");	//yellow
-			iprintf("This is not a DSi rom.\n");
-			iprintf("\x1B[47m");	//white
-			goto error;
-		}
 
 		//get install size
 		iprintf("Install Size: ");
@@ -345,40 +325,44 @@ bool install(char* fpath, bool systemTitle)
 		printBytes(installSize);
 		iprintf("\n");
 
-		if (!_checkSdSpace(installSize))
-			goto error;		
+		if (!_checkSdSpace(installSize)) {
+			goto error;
+		}
 
-		//system title patch
-		if (systemTitle)
-		{
-			iprintf("System Title Patch...");
+	iprintf("Patching install location...");
+	if (Install04) {
+			swiWaitForVBlank();
+			h->tid_high = 0x00030004;
+			iprintf("\x1B[42m");	//green
+			iprintf("Done\n");
+			iprintf("\x1B[47m");	//white
+			fixHeader = true;
+	} else if (Install05) {
+			swiWaitForVBlank();
+			h->tid_high = 0x00030005;
+			iprintf("\x1B[42m");	//green
+			iprintf("Done\n");
+			iprintf("\x1B[47m");	//white
+			fixHeader = true;
+	} else if (Install15) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030015;
 			iprintf("\x1B[42m");	//green
 			iprintf("Done\n");
 			iprintf("\x1B[47m");	//white
-
 			fixHeader = true;
-		}
+	} else if (Install17) {
+			swiWaitForVBlank();
+			h->tid_high = 0x00030017;
+			iprintf("\x1B[42m");	//green
+			iprintf("Done\n");
+			iprintf("\x1B[47m");	//white
+			fixHeader = true;
+	} else {
+			iprintf("uh...");
+			swiWaitForVBlank();
+}
 
-		//skip nand check if system title
-		if (h->tid_high != 0x00030015)
-		{
-			if (!_checkDsiSpace(installSize))
-			{
-				if (choicePrint("Install as system title?"))
-				{
-					h->tid_high = 0x00030015;
-					fixHeader = true;
-				}				
-				else
-				{
-					if (choicePrint("Try installing anyway?") == NO)
-						goto error;
-				}
-			}
-		}
-		
 		if (_iqueHack(h))
 			fixHeader = true;
 

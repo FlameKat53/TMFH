@@ -10,6 +10,8 @@ A basic title manager for DSi emunand.
 
 - View basic title header info.
 
+- In this fork: install any title anywhere (04, 05, 15, 17)
+
 ## Notes
 - Backup your SD card! Nothing bad should happen, but this is an early release so who knows.
 
