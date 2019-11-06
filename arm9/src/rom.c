@@ -5,19 +5,16 @@
 #include <malloc.h>
 #include <stdio.h>
 
-tDSiHeader* getRomHeader(char const* fpath)
-{
+tDSiHeader* getRomHeader(char const* fpath) {
 	if (!fpath) return NULL;
 
 	tDSiHeader* h = NULL;
 	FILE* f = fopen(fpath, "rb");
 
-	if (f)
-	{
+	if (f) {
 		h = (tDSiHeader*)malloc(sizeof(tDSiHeader));
 
-		if (h)
-		{
+		if (h) {
 			if (romIsCia(fpath))
 				fseek(f, 0x3900, SEEK_SET);
 			else
@@ -32,23 +29,19 @@ tDSiHeader* getRomHeader(char const* fpath)
 	return h;
 }
 
-tNDSBanner* getRomBanner(char const* fpath)
-{
+tNDSBanner* getRomBanner(char const* fpath) {
 	if (!fpath) return NULL;
 
 	tDSiHeader* h = getRomHeader(fpath);
 	tNDSBanner* b = NULL;
 
-	if (h)
-	{
+	if (h) {
 		FILE* f = fopen(fpath, "rb");
 
-		if (f)
-		{
+		if (f) {
 			b = (tNDSBanner*)malloc(sizeof(tNDSBanner));
 
-			if (b)
-			{
+			if (b) {
 				if (romIsCia(fpath))
 					fseek(f, 0x3900, SEEK_SET);
 				else
@@ -66,8 +59,7 @@ tNDSBanner* getRomBanner(char const* fpath)
 	return b;
 }
 
-bool getGameTitle(tNDSBanner* b, char* out, bool full)
-{
+bool getGameTitle(tNDSBanner* b, char* out, bool full) {
 	if (!b) return false;
 	if (!out) return false;
 
@@ -80,8 +72,7 @@ bool getGameTitle(tNDSBanner* b, char* out, bool full)
 
 	//read title
 	u16 c;
-	for (int i = 0; i < 128; i++)
-	{
+	for (int i = 0; i < 128; i++) {
 		c = b->titles[lang][i];
 
 		//remove accents
@@ -93,8 +84,7 @@ bool getGameTitle(tNDSBanner* b, char* out, bool full)
 
 		out[i] = (char)c;
 
-		if (!full && out[i] == '\n')
-		{
+		if (!full && out[i] == '\n') {
 			out[i] = '\0';
 			break;
 		}
@@ -104,8 +94,7 @@ bool getGameTitle(tNDSBanner* b, char* out, bool full)
 	return true;
 }
 
-bool getGameTitlePath(char const* fpath, char* out, bool full)
-{
+bool getGameTitlePath(char const* fpath, char* out, bool full) {
 	if (!fpath) return false;
 	if (!out) return false;
 
@@ -116,8 +105,7 @@ bool getGameTitlePath(char const* fpath, char* out, bool full)
 	return result;
 }
 
-bool getRomLabel(tDSiHeader* h, char* out)
-{
+bool getRomLabel(tDSiHeader* h, char* out) {
 	if (!h) return false;
 	if (!out) return false;
 
@@ -126,8 +114,7 @@ bool getRomLabel(tDSiHeader* h, char* out)
 	return true;
 }
 
-bool getRomCode(tDSiHeader* h, char* out)
-{
+bool getRomCode(tDSiHeader* h, char* out) {
 	if (!h) return false;
 	if (!out) return false;
 
@@ -136,8 +123,7 @@ bool getRomCode(tDSiHeader* h, char* out)
 	return true;	
 }
 
-bool getTitleId(tDSiHeader* h, u32* low, u32* high)
-{
+bool getTitleId(tDSiHeader* h, u32* low, u32* high) {
 	if (!h) return false;
 
 	if (low != NULL)
@@ -149,8 +135,7 @@ bool getTitleId(tDSiHeader* h, u32* low, u32* high)
 	return true;
 }
 
-void printRomInfo(char const* fpath)
-{
+void printRomInfo(char const* fpath) {
 	clearScreen(&topScreen);
 
 	if (!fpath) return;
@@ -158,18 +143,12 @@ void printRomInfo(char const* fpath)
 	tDSiHeader* h = getRomHeader(fpath);
 	tNDSBanner* b = getRomBanner(fpath);
 
-	if (!isDsiHeader(h))
-	{
+	if (!isDsiHeader(h)) {
 		iprintf("Could not read dsi header.\n");
-	}
-	else
-	{
-		if (!b)
-		{
+	} else {
+		if (!b) {
 			iprintf("Could not read banner.\n");
-		}
-		else
-		{
+		} else {
 			//proper title
 			{
 				char gameTitle[128+1];
@@ -192,8 +171,7 @@ void printRomInfo(char const* fpath)
 			{
 				iprintf("Unit Code: ");
 
-				switch (h->ndshdr.unitCode)
-				{
+				switch (h->ndshdr.unitCode) {
 					case 0:  iprintf("NDS"); 	 break;
 					case 2:  iprintf("NDS+DSi"); break;
 					case 3:  iprintf("DSi"); 	 break;
@@ -207,8 +185,7 @@ void printRomInfo(char const* fpath)
 			{
 				iprintf("Program Type: ");
 
-				switch (h->ndshdr.reserved1[7])
-				{
+				switch (h->ndshdr.reserved1[7]) {
 					case 0x3: iprintf("Normal"); 	break;
 					case 0xB: iprintf("Sys"); 		break;
 					case 0xF: iprintf("Debug/Sys"); break;
@@ -224,7 +201,8 @@ void printRomInfo(char const* fpath)
 					h->tid_high == 0x00030005 ||
 					h->tid_high == 0x00030015 ||
 					h->tid_high == 0x00030017 ||
-					h->tid_high == 0x00030000)
+					h->tid_high == 0x00030000 ||
+					h->tid_high == 0x00030001)
 				{
 					iprintf("Title ID: %08x %08x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);			
 				}
