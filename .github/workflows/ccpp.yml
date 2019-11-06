@@ -31,7 +31,7 @@ jobs:
         make clean
         make
         mkdir app-binary/
-        cp TMFH-master.nds app-binary/TMFH.nds
+        cp TMFH.nds app-binary/TMFH.nds
     - uses: actions/upload-artifact@master
       with:
         name: TMFH-${{ github.sha }}
