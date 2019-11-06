@@ -334,32 +334,32 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 			swiWaitForVBlank();
 			h->tid_high = 0x00030004;
 			iprintf("\x1B[42m");	//green
-			iprintf("Done\n");
+			iprintf("Done");
 			iprintf("\x1B[47m");	//white
 			fixHeader = true;
 	} else if (Install05) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030005;
 			iprintf("\x1B[42m");	//green
-			iprintf("Done\n");
+			iprintf("Done");
 			iprintf("\x1B[47m");	//white
 			fixHeader = true;
 	} else if (Install15) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030015;
 			iprintf("\x1B[42m");	//green
-			iprintf("Done\n");
+			iprintf("Done");
 			iprintf("\x1B[47m");	//white
 			fixHeader = true;
 	} else if (Install17) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030017;
 			iprintf("\x1B[42m");	//green
-			iprintf("Done\n");
+			iprintf("Done");
 			iprintf("\x1B[47m");	//white
 			fixHeader = true;
 	} else {
-			iprintf("uh...");
+			iprintf("uh..");
 			swiWaitForVBlank();
 }
 
