@@ -1,0 +1,38 @@
+name: Comp
+
+on:
+  push:
+    branches:
+    - master
+    - release/*
+    tags:
+      - v*
+
+jobs:
+  buildApplet:
+    name: Build app
+    runs-on: ubuntu-16.04
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install devkit(Pro/ARM) and libnds
+      run: |
+       curl -L https://github.com/devkitPro/pacman/releases/download/devkitpro-pacman-1.0.1/devkitpro-pacman.deb -o pacman.deb
+       sudo apt update
+       sudo apt-get install rng-tools
+       sudo rngd -r /dev/urandom
+       sudo dpkg -i pacman.deb
+       sudo dkp-pacman -Sy
+       sudo dkp-pacman -S nds-dev --noconfirm
+    - name: make
+      run: |
+        export DEVKITPRO="/opt/devkitpro"
+        export DEVKITARM="/opt/devkitpro/devkitARM"
+        make clean
+        make
+        mkdir app-binary/
+        cp TMFH-master.nds app-binary/TMFH.nds
+    - uses: actions/upload-artifact@master
+      with:
+        name: TMFH-${{ github.sha }}
+        path: app-binary/
