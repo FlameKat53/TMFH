@@ -149,31 +149,31 @@ void printRomInfo(char const* fpath) {
 	if (!b) {
 		iprintf("Could not read banner.\n");
 	} else {
-		//proper title
-		{
-			char gameTitle[128+1];
-			getGameTitle(b, gameTitle, true);
+			//proper title
+			{
+				char gameTitle[128+1];
+				getGameTitle(b, gameTitle, true);
 
-			iprintf("%s\n\n", gameTitle);
-		}
+				iprintf("%s\n\n", gameTitle);
+			}
 
 			//file size
-		{
-			iprintf("Size: ");
-			printBytes(getRomSize(fpath));
-			iprintf("\n");
-		}
+			{
+				iprintf("Size: ");
+				printBytes(getRomSize(fpath));
+				iprintf("\n");
+			}
 
-		iprintf("Label: %.12s\n", h->ndshdr.gameTitle);
-		iprintf("Game Code: %.4s\n", h->ndshdr.gameCode);
+			iprintf("Label: %.12s\n", h->ndshdr.gameTitle);
+			iprintf("Game Code: %.4s\n", h->ndshdr.gameCode);
 
-		//system type
-		{
+			//system type
+			{
 				iprintf("Unit Code: ");
 
 				switch (h->ndshdr.unitCode) {
 					case 0:  iprintf("NDS"); 	 break;
-					case 2:  iprintf("NDS+DSi");	 break;
+					case 2:  iprintf("NDS+DSi"); break;
 					case 3:  iprintf("DSi"); 	 break;
 					default: iprintf("unknown");
 				}
@@ -187,7 +187,7 @@ void printRomInfo(char const* fpath) {
 
 				switch (h->ndshdr.reserved1[7]) {
 					case 0x3: iprintf("Normal"); 	break;
-					case 0xB: iprintf("Sys"); 	break;
+					case 0xB: iprintf("Sys"); 		break;
 					case 0xF: iprintf("Debug/Sys"); break;
 					default:  iprintf("unknown");
 				}
@@ -210,7 +210,6 @@ void printRomInfo(char const* fpath) {
 
 			//print full file path
 			iprintf("\n%s\n", fpath);
-		}
 	}
 
 	free(b);
