@@ -78,7 +78,7 @@ static void generateList(Menu* m)
 {
 	if (!m) return;
 
-	const int NUM_OF_DIRS = 3;
+	const int NUM_OF_DIRS = 4;
 	const char* dirs[] = {
 		"00030004",
 		"00030005",
