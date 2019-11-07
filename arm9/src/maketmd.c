@@ -34,6 +34,7 @@ distribution.
 */
 
 #include "maketmd.h"
+#include "install.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
