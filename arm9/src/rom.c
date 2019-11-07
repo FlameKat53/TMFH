@@ -114,7 +114,7 @@ bool getRomLabel(tDSiHeader* h, char* out) {
 	return true;
 }
 
-bool getRomCode(tDSiHeader* h, char* out) {
+bool getRomCode(tDSiHeader* h, char* out, char* dsiGameCode) {
 	if (!h) return false;
 	if (!out) return false;
 
