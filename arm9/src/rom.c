@@ -199,7 +199,6 @@ void printRomInfo(char const* fpath) {
 					iprintf("Title ID: %08x %08x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);
 					iprintf("Title ID: %04x %04x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);
 				}
-			}
 
 			//print full file path
 			iprintf("\n%s\n", fpath);
