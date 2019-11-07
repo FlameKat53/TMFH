@@ -1,9 +1,31 @@
 #include "rom.h"
 #include "main.h"
 #include "storage.h"
+#include <string.h>
 #include <nds.h>
 #include <malloc.h>
 #include <stdio.h>
+using namespace std; 
+  
+string hexToASCII(string hex){ 
+    // initialize the ASCII code string as empty. 
+    string ascii = ""; 
+    for (size_t i = 0; i < hex.length(); i += 2) 
+    { 
+        // extract two characters from hex string 
+        string part = hex.substr(i, 2); 
+  
+        // change it into base 16 and  
+        // typecast as the character 
+        char ch = stoul(part, nullptr, 16); 
+  
+        // add this char to final ASCII string 
+        ascii += ch; 
+    } 
+    return ascii; 
+}
+// This code is contributed by 
+// sanjeev2552 (from geeksforgeeks.org)
 
 tDSiHeader* getRomHeader(char const* fpath) {
 	if (!fpath) return NULL;
@@ -164,7 +186,8 @@ void printRomInfo(char const* fpath) {
 			}
 
 			iprintf("Label: %.12s\n", h->ndshdr.gameTitle);
-			iprintf("Game Code: %.4s %.4s", h->ndshdr.gameCode, h->tid_low);
+			hexToASCII(h->tid_low);
+			iprintf("Game Code: %.4s %.4s", h->ndshdr.gameCode, ascii);
 			iprintf("\n");
 			//system type
 			{
