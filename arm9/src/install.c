@@ -514,7 +514,7 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 					}
 				}
 			}
-		}
+		//}
 
 		//data folder
 		{
@@ -537,7 +537,8 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 		keyWait(KEY_A | KEY_B);
 
 		goto complete;
-	}	
+	}
+
 
 error:
 	messagePrint("\x1B[31m\nInstallation failed.\n\x1B[47m");
