@@ -3,7 +3,7 @@
 #include "message.h"
 #include <time.h>
 
-#define VERSION "0.7.1"
+#define VERSION "0.7.2"
 
 enum {
 	MAIN_MENU_INSTALL,
@@ -13,8 +13,7 @@ enum {
 	MAIN_MENU_EXIT
 };
 
-static void _setupScreens()
-{
+static void _setupScreens() {
 	REG_DISPCNT = MODE_FB0;
 	VRAM_A_CR = VRAM_ENABLE;
 
@@ -32,13 +31,12 @@ static void _setupScreens()
 	VRAM_A[100] = 0xFFFF;
 }
 
-static int _mainMenu(int cursor)
-{
+static int _mainMenu(int cursor) {
 	//top screen
 	clearScreen(&topScreen);
 
 	iprintf("\tTitle Manager for HiyaCFW\n");
-	iprintf("\nversion %s\n", VERSION);
+	iprintf("\nv%s\n", VERSION);
 	iprintf("\x1b[23;0HJeff - 2018-2019");
 
 	//menu
@@ -56,8 +54,7 @@ static int _mainMenu(int cursor)
 	//bottom screen
 	printMenu(m);
 
-	while (1)
-	{
+	while (1) {
 		swiWaitForVBlank();
 		scanKeys();
 
@@ -74,21 +71,18 @@ static int _mainMenu(int cursor)
 	return result;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	srand(time(0));
 	_setupScreens();
 
 	//DSi check
-	if (!isDSiMode())
-	{
+	if (!isDSiMode()) {
 		messageBox("\x1B[31mError:\x1B[33m This app is only for DSi.");
 		return 0;
 	}
 
 	//setup sd card access
-	if (!fatInitDefault())
-	{
+	if (!fatInitDefault()) {
 		messageBox("fatInitDefault()...\x1B[31mFailed\n\x1B[47m");
 		return 0;
 	}
@@ -97,12 +91,10 @@ int main(int argc, char **argv)
 	bool programEnd = false;
 	int cursor = 0;
 
-	while (!programEnd)
-	{
+	while (!programEnd) {
 		cursor = _mainMenu(cursor);
 
-		switch (cursor)
-		{
+		switch (cursor) {
 			case MAIN_MENU_INSTALL:
 				installMenu();
 				break;
@@ -128,8 +120,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void clearScreen(PrintConsole* screen)
-{
+void clearScreen(PrintConsole* screen) {
 	consoleSelect(screen);
 	consoleClear();
 }
