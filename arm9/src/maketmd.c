@@ -48,7 +48,7 @@ distribution.
 #define SHA_BUFFER_SIZE	  0x200
 #define SHA_DIGEST_LENGTH 0x14
 
-void tmd_create(uint8_t* tmd, FILE* app)
+void tmd_create(uint8_t* tmd, FILE* app, bool potato)
 {
 	// Phase 1 - offset 0x18C (Title ID, first part)
 	{
@@ -63,7 +63,7 @@ void tmd_create(uint8_t* tmd, FILE* app)
 
 	// Phase 2 - offset 0x190 (Title ID, second part)
 	{
-		if (bruh) {
+		if (potato) {
 		// We can also take this from 0x230, but reversed
 		fseek(app, 0x0C, SEEK_SET);
 		fread((char*)&tmd[0x190], 4, 1, app);
@@ -157,7 +157,6 @@ void maketmd(char* input, char* tmdPath, bool bruh) {
 		iprintf("\x1B[31m");	//red
 		iprintf("Error at opening %s for reading.\n", input);
 		iprintf("\x1B[47m");	//white
-		return 1;
 	}
 
 	// TMD file (output)
@@ -168,7 +167,6 @@ void maketmd(char* input, char* tmdPath, bool bruh) {
 		iprintf("\x1B[31m");	//white
 		iprintf("Error at opening %s for writing.\n", tmdPath);
 		iprintf("\x1B[47m");	//white
-		return 1;
 	}
 
 	// Allocate memory for TMD
@@ -176,7 +174,11 @@ void maketmd(char* input, char* tmdPath, bool bruh) {
 	memset(tmd_template, 0, sizeof(uint8_t) * TMD_SIZE); // zeroed
 
 	// Prepare TMD template then write to file
-	tmd_create(tmd_template, app);
+	if (bruh) {
+	tmd_create(tmd_template, app, true);
+	} else {
+	tmd_create(tmd_template, app, false);
+	}
 	fwrite((const char*)(&tmd_template[0]), TMD_SIZE, 1, tmd);
 
 	// Free allocated memory for TMD
@@ -188,5 +190,4 @@ void maketmd(char* input, char* tmdPath, bool bruh) {
 	iprintf("\x1B[42m");	//green
 	iprintf("Done");
 	iprintf("\x1B[47m");	//white
-	return 0;
 }
