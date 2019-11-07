@@ -4,6 +4,6 @@
 #include "main.h"
 #include "storage.h"
 
-int maketmd(char* input, char* tmdPath);
+void maketmd(char* input, char* tmdPath, bool bruh);
 
 #endif
