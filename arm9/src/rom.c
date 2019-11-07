@@ -119,7 +119,7 @@ bool getRomCode(tDSiHeader* h, char* out) {
 	if (!out) return false;
 
 	sprintf(out, "%.4s", h->ndshdr.gameCode);
-
+	sprintf(out, "%.4s", dsiGameCode == (unsigned int)((h->ndshdr.gameCode[0] << 24) | (h->ndshdr.gameCode[1] << 16) | (h->ndshdr.gameCode[2] << 8) | h->ndshdr.gameCode[3]);
 	return true;	
 }
 
@@ -165,8 +165,9 @@ void printRomInfo(char const* fpath) {
 			}
 
 			iprintf("Label: %.12s\n", h->ndshdr.gameTitle);
-			iprintf("Game Code: %.4s\n", h->ndshdr.gameCode);
-
+			iprintf("Game Code: %.4s ", h->ndshdr.gameCode);
+			iprintf(dsiGameCode);
+			iprintf("\n");
 			//system type
 			{
 				iprintf("Unit Code: ");
@@ -191,14 +192,20 @@ void printRomInfo(char const* fpath) {
 					case 0xF: iprintf("Debug/Sys"); break;
 					default:  iprintf("unknown");
 				}
-
 				iprintf("\n");
 			}
 			//DSi title ids
-				{
+				{				
+					if (h->tid_high == 0x00030000 ||
+					h->tid_high == 0x00030001 ||
+					h->tid_high == 0x00030004 ||
+					h->tid_high == 0x00030005 ||
+					h->tid_high == 0x00030011 ||
+					h->tid_high == 0x00030015 ||
+					h->tid_high == 0x00030017) {
 					iprintf("Title ID: %08x %08x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);
-					iprintf("Title ID: %04x %04x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);
 				}
+			}
 
 			//print full file path
 			iprintf("\n%s\n", fpath);
