@@ -8,6 +8,8 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+bool bruh = false;
+
 static bool _titleIsUsed(tDSiHeader* h)
 {
 	if (!h) return false;
@@ -362,7 +364,15 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 			iprintf("uh..");
 			swiWaitForVBlank();
 }
+	char bruhMoment[64];
+	sprintf(bruhMoment, "Use 0x0C for gameCode?");
 
+	if (choicePrint(bruhMoment) == NO) {
+		bruh = true;
+	} else {
+		bruh = false;
+		}
+	}
 		if (_iqueHack(h))
 			fixHeader = true;
 
@@ -376,8 +386,7 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 		sprintf(dirPath, "/title/%08x/%08x", (unsigned int)h->tid_high, (unsigned int)h->tid_low);	
 
 		//check if title is free
-		if (_titleIsUsed(h))
-		{
+		if (_titleIsUsed(h)) {
 			char msg[64];
 			sprintf(msg, "Title %08x is already used.\nInstall anyway?", (unsigned int)h->tid_low);
 
