@@ -62,9 +62,14 @@ void tmd_create(uint8_t* tmd, FILE* app)
 
 	// Phase 2 - offset 0x190 (Title ID, second part)
 	{
-		// We can take this also from 0x230, but reversed
-		fseek(app, 0x0C, SEEK_SET);
-		fread((char*)&tmd[0x190], 4, 1, app);
+		// We can take this also from 0x0C
+		fseek(app, 0x230, SEEK_SET);
+
+		uint32_t tidO;
+		fread(&tidO, 4, 1, app);
+		tidO = __bswap32(tidO);
+
+		memcpy(tmd + 0x190, &tidO, 4);
 	}
 
 	// Phase 3 - offset 0x198 (Group ID = '01')
