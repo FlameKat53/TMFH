@@ -194,17 +194,10 @@ void printRomInfo(char const* fpath) {
 
 				iprintf("\n");
 			}
-
 			//DSi title ids
-			{
-				if (h->tid_high == 0x00030004 ||
-					h->tid_high == 0x00030005 ||
-					h->tid_high == 0x00030015 ||
-					h->tid_high == 0x00030017 ||
-					h->tid_high == 0x00030000 ||
-					h->tid_high == 0x00030001)
 				{
-					iprintf("Title ID: %08x %08x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);			
+					iprintf("Title ID: %08x %08x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);
+					iprintf("Title ID: %04x %04x\n", (unsigned int)h->tid_high, (unsigned int)h->tid_low);
 				}
 			}
 
