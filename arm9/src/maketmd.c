@@ -43,7 +43,7 @@ distribution.
 
 //#define TMD_CREATOR_VER  "0.2"
 
-#define TMD_SIZE		  0x208
+#define TMD_SIZE	  0x208
 #define SHA_BUFFER_SIZE	  0x200
 #define SHA_DIGEST_LENGTH 0x14
 
@@ -62,14 +62,9 @@ void tmd_create(uint8_t* tmd, FILE* app)
 
 	// Phase 2 - offset 0x190 (Title ID, second part)
 	{
-		// We can take this also from 0x0C
-		fseek(app, 0x230, SEEK_SET);
-
-		uint32_t tidO;
-		fread(&tidO, 4, 1, app);
-		tidO = __bswap32(tidO);
-
-		memcpy(tmd + 0x190, &tidO, 4);
+		// We can take this also from 0x230, but reversed
+		fseek(app, 0x0C, SEEK_SET);
+		fread((char*)&tmd[0x190], 4, 1, app);
 	}
 
 	// Phase 3 - offset 0x198 (Group ID = '01')
@@ -142,15 +137,7 @@ void tmd_create(uint8_t* tmd, FILE* app)
 
 int maketmd(char* input, char* tmdPath)
 {
-	iprintf("MakeTMD for DSiWare Homebrew\n");
-	iprintf("by Przemyslaw Skryjomski\n\t(Tuxality)\n");
-
-	if(input == NULL || tmdPath == NULL) {
-		iprintf("\x1B[33m");	//yellow
-		iprintf("\nUsage: %s file.app <file.tmd>\n", "maketmd");
-		iprintf("\x1B[47m");	//white
-		return 1;
-	}
+	iprintf("Creating TMD...");
 
 	// APP file (input)
 	FILE* app = fopen(input, "rb");
@@ -188,6 +175,8 @@ int maketmd(char* input, char* tmdPath)
 	// This is done in dtor, but we additionally flush tmd.
 	fclose(app);
 	fclose(tmd);
-
+	iprintf("\x1B[42m");	//green
+	iprintf("Done");
+	iprintf("\x1B[47m");	//white
 	return 0;
 }
