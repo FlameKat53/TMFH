@@ -62,9 +62,20 @@ void tmd_create(uint8_t* tmd, FILE* app)
 
 	// Phase 2 - offset 0x190 (Title ID, second part)
 	{
+		if (bruh) {
 		// We can take this also from 0x230, but reversed
 		fseek(app, 0x0C, SEEK_SET);
 		fread((char*)&tmd[0x190], 4, 1, app);
+		} else {
+		// We can take this also from 0x0C
+		fseek(app, 0x230, SEEK_SET);
+
+		uint32_t tidO;
+		fread(&tidO, 4, 1, app);
+		tidO = __bswap32(tidO);
+
+		memcpy(tmd + 0x190, &tidO, 4);
+		}
 	}
 
 	// Phase 3 - offset 0x198 (Group ID = '01')
@@ -135,8 +146,7 @@ void tmd_create(uint8_t* tmd, FILE* app)
 	}
 }
 
-int maketmd(char* input, char* tmdPath)
-{
+int maketmd(char* input, char* tmdPath) {
 	iprintf("Creating TMD...");
 
 	// APP file (input)
@@ -152,8 +162,7 @@ int maketmd(char* input, char* tmdPath)
 	// TMD file (output)
 	FILE* tmd = fopen(tmdPath, "wb");
 
-	if (!tmd)
-	{
+	if (!tmd) {
 		fclose(app);
 		iprintf("\x1B[31m");	//white
 		iprintf("Error at opening %s for writing.\n", tmdPath);
