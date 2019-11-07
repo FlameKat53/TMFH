@@ -164,7 +164,7 @@ void printRomInfo(char const* fpath) {
 			}
 
 			iprintf("Label: %.12s\n", h->ndshdr.gameTitle);
-			iprintf("Game Code: %.4s %.4s", h->ndshdr.gameCode, h->tid_low);
+			iprintf("Game Code: %.4s %.8s", h->ndshdr.gameCode, (unsigned int)h->tid_low);
 			iprintf("\n");
 			//system type
 			{
