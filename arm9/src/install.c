@@ -364,15 +364,6 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 			iprintf("uh..");
 			swiWaitForVBlank();
 }
-	char bruhMoment[64];
-	sprintf(bruhMoment, "Use 0x0C for gameCode?");
-
-	if (choicePrint(bruhMoment) == NO) {
-		bruh = true;
-	} else {
-		bruh = false;
-		}
-	}
 		if (_iqueHack(h))
 			fixHeader = true;
 
@@ -508,11 +499,19 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 
 				//make TMD
 				{
-					char tmdPath[80];
-					sprintf(tmdPath, "%s/title.tmd", contentPath);
+					char bruhMoment[64];
+					sprintf(bruhMoment, "Use 0x0C for gameCode?");
 
-					if (maketmd(appPath, tmdPath) != 0)				
-						goto error;
+					if (choicePrint(bruhMoment) == NO) {
+						char tmdPath[80];
+						sprintf(tmdPath, "%s/title.tmd", contentPath);
+						maketmd(appPath, tmdPath, false);
+					} else {
+						char tmdPath[80];
+						sprintf(tmdPath, "%s/title.tmd", contentPath);
+						maketmd(appPath, tmdPath, true);
+						}
+					}
 				}
 			}
 		}
