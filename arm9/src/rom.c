@@ -114,13 +114,12 @@ bool getRomLabel(tDSiHeader* h, char* out) {
 	return true;
 }
 
-bool getRomCode(tDSiHeader* h, char* out, char* dsiGameCode) {
+bool getRomCode(tDSiHeader* h, char* out) {
 	if (!h) return false;
 	if (!out) return false;
 
 	sprintf(out, "%.4s", h->ndshdr.gameCode);
-	sprintf(out, "%.4s", dsiGameCode == (unsigned int)((h->ndshdr.gameCode[0] << 24) | (h->ndshdr.gameCode[1] << 16) | (h->ndshdr.gameCode[2] << 8) | h->ndshdr.gameCode[3]);
-	return true;	
+	return true;
 }
 
 bool getTitleId(tDSiHeader* h, u32* low, u32* high) {
@@ -165,8 +164,7 @@ void printRomInfo(char const* fpath) {
 			}
 
 			iprintf("Label: %.12s\n", h->ndshdr.gameTitle);
-			iprintf("Game Code: %.4s ", h->ndshdr.gameCode);
-			iprintf(dsiGameCode);
+			iprintf("Game Code: %.4s %.4s", h->ndshdr.gameCode, h->tid_low);
 			iprintf("\n");
 			//system type
 			{
