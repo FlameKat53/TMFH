@@ -64,11 +64,11 @@ void tmd_create(uint8_t* tmd, FILE* app)
 	// Phase 2 - offset 0x190 (Title ID, second part)
 	{
 		if (bruh) {
-		// We can take this also from 0x230, but reversed
+		// We can also take this from 0x230, but reversed
 		fseek(app, 0x0C, SEEK_SET);
 		fread((char*)&tmd[0x190], 4, 1, app);
 		} else {
-		// We can take this also from 0x0C
+		// We can also take this from 0x0C but some apps use NTRJ as that
 		fseek(app, 0x230, SEEK_SET);
 
 		uint32_t tidO;
@@ -147,7 +147,7 @@ void tmd_create(uint8_t* tmd, FILE* app)
 	}
 }
 
-int maketmd(char* input, char* tmdPath) {
+void maketmd(char* input, char* tmdPath, bool bruh) {
 	iprintf("Creating TMD...");
 
 	// APP file (input)
