@@ -7,8 +7,7 @@
 #define TITLE_LIMIT 39
 
 //printing
-void printBytes(unsigned long long bytes)
-{
+void printBytes(unsigned long long bytes) {
 	if (bytes < 1024)
 		iprintf("%dB", (unsigned int)bytes);
 
@@ -25,30 +24,26 @@ void printBytes(unsigned long long bytes)
 //progress bar
 static int lastBars = 0;
 
-void printProgressBar(float percent)
-{
+void printProgressBar(float percent) {
 	if (percent < 0.f) percent = 0.f;
 	if (percent > 1.f) percent = 1.f;
 
 	int bars = (int)(30.f * percent);
 
 	//skip redundant prints
-	if (bars != lastBars)
-	{
+	if (bars != lastBars) {
 		consoleSelect(&topScreen);
 
 		iprintf("\x1B[42m");	//green
 
 		//Print frame
-		if (lastBars <= 0)
-		{
+		if (lastBars <= 0) {
 			iprintf("\x1b[23;0H[");
 			iprintf("\x1b[23;31H]");
 		}
 
 		//Print bars
-		if (bars > 0)
-		{			
+		if (bars > 0) {			
 			for (int i = 0; i < bars; i++)
 				iprintf("\x1b[23;%dH|", 1 + i);			
 		}
@@ -59,16 +54,14 @@ void printProgressBar(float percent)
 	}	
 }
 
-void clearProgressBar()
-{
+void clearProgressBar() {
 	lastBars = 0;
 	consoleSelect(&topScreen);
 	iprintf("\x1b[23;0H                                ");
 }
 
 //files
-bool fileExists(char const* path)
-{
+bool fileExists(char const* path) {
 	if (!path) return false;
 
 	FILE* f = fopen(path, "rb");
@@ -79,41 +72,33 @@ bool fileExists(char const* path)
 	return true;
 }
 
-int copyFile(char const* src, char const* dst)
-{
+int copyFile(char const* src, char const* dst) {
 	if (!src) return 1;
 
 	unsigned long long size = getFileSizePath(src);
 	return copyFilePart(src, 0, size, dst);
 }
 
-int copyFilePart(char const* src, u32 offset, u32 size, char const* dst)
-{
+int copyFilePart(char const* src, u32 offset, u32 size, char const* dst) {
 	if (!src) return 1;
 	if (!dst) return 2;
 
 	FILE* fin = fopen(src, "rb");
 
-	if (!fin)
-	{
+	if (!fin) {
 		fclose(fin);
 		return 3;
-	}
-	else
-	{
+	} else {
 		if (fileExists(dst))
 			remove(dst);
 
 		FILE* fout = fopen(dst, "wb");
 
-		if (!fout)
-		{
+		if (!fout) {
 			fclose(fin);
 			fclose(fout);
 			return 4;
-		}
-		else
-		{
+		} else {
 			fseek(fin, offset, SEEK_SET);
 
 			consoleSelect(&topScreen);
@@ -124,8 +109,7 @@ int copyFilePart(char const* src, u32 offset, u32 size, char const* dst)
 			#define BUFF_SIZE 128 //Arbitrary. A value too large freezes the ds.
 			char* buffer = (char*)malloc(BUFF_SIZE);
 
-			while (1)
-			{
+			while (1) {
 				unsigned int toRead = BUFF_SIZE;
 				if (size - totalBytesRead < BUFF_SIZE)
 					toRead = size - totalBytesRead;
@@ -153,8 +137,7 @@ int copyFilePart(char const* src, u32 offset, u32 size, char const* dst)
 	return 0;	
 }
 
-unsigned long long getFileSize(FILE* f)
-{
+unsigned long long getFileSize(FILE* f) {
 	if (!f) return 0;
 
 	fseek(f, 0, SEEK_END);
@@ -164,8 +147,7 @@ unsigned long long getFileSize(FILE* f)
 	return size;
 }
 
-unsigned long long getFileSizePath(char const* path)
-{
+unsigned long long getFileSizePath(char const* path) {
 	if (!path) return 0;
 
 	FILE* f = fopen(path, "rb");
@@ -175,17 +157,13 @@ unsigned long long getFileSizePath(char const* path)
 	return size;
 }
 
-bool padFile(char const* path, int size)
-{
+bool padFile(char const* path, int size) {
 	if (!path) return false;
 
 	FILE* f = fopen(path, "ab");
-	if (!f)
-	{
+	if (!f) {
 		return false;
-	}
-	else
-	{
+	} else {
 		char zero = 0;
 		fwrite(&zero, size, 1, f);
 	}
@@ -195,8 +173,7 @@ bool padFile(char const* path, int size)
 }
 
 //directories
-bool dirExists(char const* path)
-{
+bool dirExists(char const* path) {
 	if (!path) return false;
 
 	DIR* dir = opendir(path);
@@ -208,8 +185,7 @@ bool dirExists(char const* path)
 	return true;
 }
 
-bool copyDir(char const* src, char const* dst)
-{
+bool copyDir(char const* src, char const* dst) {
 	if (!src || !dst) return false;
 
 //	iprintf("copyDir\n%s\n%s\n\n", src, dst);
@@ -219,19 +195,14 @@ bool copyDir(char const* src, char const* dst)
 	DIR* dir = opendir(src);
 	struct dirent* ent;
 
-	if (!dir)
-	{
+	if (!dir) {
 		return false;
-	}
-	else
-	{
-		while ( (ent = readdir(dir)) )
-		{
+	} else {
+		while ( (ent = readdir(dir)) ) {
 			if (strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0)
 				continue;
 
-			if (ent->d_type == DT_DIR)
-			{
+			if (ent->d_type == DT_DIR) {
 				char* dsrc = (char*)malloc(strlen(src) + strlen(ent->d_name) + 4);
 				sprintf(dsrc, "%s/%s", src, ent->d_name);
 
@@ -244,52 +215,27 @@ bool copyDir(char const* src, char const* dst)
 
 				free(ddst);
 				free(dsrc);
-			}
-			else
-			{
+			} else {
 				char* fsrc = (char*)malloc(strlen(src) + strlen(ent->d_name) + 4);
 				sprintf(fsrc, "%s/%s", src, ent->d_name);
 
 				char* fdst = (char*)malloc(strlen(dst) + strlen(ent->d_name) + 4);
 				sprintf(fdst, "%s/%s", dst, ent->d_name);
 
-//				iprintf("%s\n%s\n\n", fsrc, fdst);
 				iprintf("%s -> \n%s...", fsrc, fdst);
 
 				int ret = copyFile(fsrc, fdst);
 				
-				if(ret != 0)
-				{
+				if(ret != 0) {
 					iprintf("\x1B[31m");	//red
 					iprintf("Fail\n");
 					iprintf("\x1B[33m");	//yellow
 
 					iprintf("%s\n", strerror(errno));
-/*
-					switch (ret)
-					{
-						case 1:
-							iprintf("Empty input path.\n");
-							break;
 
-						case 2:
-							iprintf("Empty output path.\n");
-							break;
-
-						case 3:
-							iprintf("Error opening input file.\n");
-							break;
-
-						case 4:
-							iprintf("Error opening output file.\n");
-							break;
-					}
-*/
 					iprintf("\x1B[47m");	//white
 					result = false;
-				}
-				else
-				{
+				} else {
 					iprintf("\x1B[42m");	//green
 					iprintf("Done\n");
 					iprintf("\x1B[47m");	//white
@@ -305,12 +251,10 @@ bool copyDir(char const* src, char const* dst)
 	return result;
 }
 
-bool deleteDir(char const* path)
-{
+bool deleteDir(char const* path) {
 	if (!path) return false;
 
-	if (strcmp("/", path) == 0)
-	{
+	if ((strcmp("/", path) == 0) || strcmp("sd:/sys/", path) == 0) || strcmp("sd:/_nds/", path) == 0) || strcmp("sd:/roms/", path) == 0)) {
 		//oh fuck no
 		return false;
 	}
@@ -320,42 +264,32 @@ bool deleteDir(char const* path)
 	DIR* dir = opendir(path);
 	struct dirent* ent;
 
-	if (!dir)
-	{
+	if (!dir) {
 		result = false;
-	}
-	else
-	{
-		while ( (ent = readdir(dir)) )
-		{
+	} else {
+		while ( (ent = readdir(dir)) ) {
 			if (strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0)
 				continue;
 
-			if (ent->d_type == DT_DIR)
-			{
+			if (ent->d_type == DT_DIR) {
 				//Delete directory
 				char subpath[512];
 				sprintf(subpath, "%s/%s", path, ent->d_name);
 
 				if (!deleteDir(subpath))
 					result = false;
-			}
-			else
-			{
+			} else {
 				//Delete file
 				char fpath[512];
 				sprintf(fpath, "%s/%s", path, ent->d_name);
 
 				iprintf("%s...", fpath);
-				if (remove(fpath) != 0)
-				{
+				if (remove(fpath) != 0) {
 					iprintf("\x1B[31m");
 					iprintf("Fail\n");
 					iprintf("\x1B[47m");
 					result = false;
-				}
-				else
-				{
+				} else {
 					iprintf("\x1B[42m");
 					iprintf("Done\n");
 					iprintf("\x1B[47m");
@@ -367,15 +301,12 @@ bool deleteDir(char const* path)
 	closedir(dir);
 
 	iprintf("%s...", path);
-	if (remove(path) != 0)
-	{
+	if (remove(path) != 0) {
 		iprintf("\x1B[31m");
 		iprintf("Fail\n");
 		iprintf("\x1B[47m");
 		result = false;
-	}
-	else
-	{
+	} else {
 		iprintf("\x1B[42m");
 		iprintf("Done\n");
 		iprintf("\x1B[47m");
@@ -384,30 +315,24 @@ bool deleteDir(char const* path)
 	return result;
 }
 
-unsigned long long getDirSize(const char* path)
-{
+unsigned long long getDirSize(const char* path) {
 	if (!path) return 0;
 
 	unsigned long long size = 0;
 	DIR* dir = opendir(path);
 	struct dirent* ent;
 
-	if (dir)
-	{
-		while ((ent = readdir(dir)))
-		{
+	if (dir) {
+		while ((ent = readdir(dir))) {
 			if(strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0)
 				continue;
 
-			if (ent->d_type == DT_DIR)
-			{
+			if (ent->d_type == DT_DIR) {
 				char fullpath[512];
 				sprintf(fullpath, "%s/%s", path, ent->d_name);
 
 				size += getDirSize(fullpath);
-			}
-			else
-			{				
+			} else {				
 				char fullpath[260];
 				sprintf(fullpath, "%s/%s", path, ent->d_name);				
 
@@ -421,21 +346,22 @@ unsigned long long getDirSize(const char* path)
 }
 
 //home menu
-int getMenuSlots()
-{
+int getMenuSlots() {
 	//Assume the home menu has a hard limit on slots
 	//Find a better way to do this
 	return TITLE_LIMIT;
 }
 
-int getMenuSlotsFree()
-{
+int getMenuSlotsFree() {
 	//Get number of open menu slots by subtracting the number of directories in the title folders
 	//Find a better way to do this
-	const int NUM_OF_DIRS = 3;
+	const int NUM_OF_DIRS = 6;
 	const char* dirs[] = {
+		"00030000",
+		"00030001",
 		"00030004",
 		"00030005",
+		"00030011",
 		"00030015"
 	};
 
@@ -444,17 +370,14 @@ int getMenuSlotsFree()
 	DIR* dir;
 	struct dirent* ent;	
 	
-	for (int i = 0; i < NUM_OF_DIRS; i++)
-	{
+	for (int i = 0; i < NUM_OF_DIRS; i++) {
 		char path[256];
 		sprintf(path, "/title/%s", dirs[i]);
 		
 		dir = opendir(path);
 		
-		if (dir)
-		{
-			while ( (ent = readdir(dir)) != NULL )
-			{
+		if (dir) {
+			while ( (ent = readdir(dir)) != NULL ) {
 				if(strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0)
 					continue;
 				
@@ -470,16 +393,16 @@ int getMenuSlotsFree()
 }
 
 //SD card
-bool sdIsInserted()
-{
-	//Find a better way to do this.
-	return true;
+bool sdIsInserted() {
+	if (access("sd:/", F_OK) == 0) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
-unsigned long long getSDCardSize()
-{
-	if (sdIsInserted())
-	{
+unsigned long long getSDCardSize() {
+	if (sdIsInserted()) {
 		struct statvfs st;
 		if (statvfs("/", &st) == 0)
 			return st.f_bsize * st.f_blocks;
@@ -488,10 +411,8 @@ unsigned long long getSDCardSize()
 	return 0;
 }
 
-unsigned long long getSDCardFree()
-{
-	if (sdIsInserted())
-	{
+unsigned long long getSDCardFree() {
+	if (sdIsInserted()) {
 		struct statvfs st;
 		if (statvfs("/", &st) == 0)
 			return st.f_bsize * st.f_bavail;
@@ -501,15 +422,13 @@ unsigned long long getSDCardFree()
 }
 
 //internal storage
-unsigned long long getDsiSize()
-{
+unsigned long long getDsiSize() {
 	//The DSi has 256MB of internal storage. Some is unavailable and used by other things.
 	//An empty DSi reads 1024 open blocks
 	return 1024 * BYTES_PER_BLOCK;
 }
 
-unsigned long long getDsiFree()
-{
+unsigned long long getDsiFree() {
 	//Get free space by subtracting file sizes in emulated nand folders
 	unsigned long long size = getDsiSize();
 	unsigned long long appSize = getDirSize("/title/00030004");
@@ -519,12 +438,9 @@ unsigned long long getDsiFree()
 		appSize = ((int)(appSize / BYTES_PER_BLOCK) * BYTES_PER_BLOCK) + BYTES_PER_BLOCK;
 
 	//subtract, but don't go under 0
-	if (appSize > size)
-	{
+	if (appSize > size) {
 		size = 0;
-	}
-	else
-	{
+	} else {
 		size -= appSize;
 	}
 
