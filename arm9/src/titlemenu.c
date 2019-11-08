@@ -17,26 +17,20 @@ static int subMenu();
 static void backup(Menu* m);
 static bool delete(Menu* m);
 
-void titleMenu()
-{
+void titleMenu() {
 	Menu* m = newMenu();
 	setMenuHeader(m, "INSTALLED TITLES");
 	generateList(m);
 
 	//no titles
-	if (m->itemCount <= 0)
-	{
+	if (m->itemCount <= 0) {
 		messageBox("No titles found.");
-	}
-	else
-	{
-		while (1)
-		{
+	} else {
+		while (1) {
 			swiWaitForVBlank();
 			scanKeys();
 
-			if (moveCursor(m))
-			{
+			if (moveCursor(m)) {
 				if (m->changePage != 0)
 					generateList(m);
 
@@ -47,18 +41,14 @@ void titleMenu()
 			if (keysDown() & KEY_B || m->itemCount <= 0)
 				break;
 
-			else if (keysDown() & KEY_A)
-			{
-				switch (subMenu())
-				{
+			else if (keysDown() & KEY_A) {
+				switch (subMenu()) {
 					case TITLE_MENU_BACKUP:
 						backup(m);
 						break;
 
-					case TITLE_MENU_DELETE:
-					{
-						if (delete(m))
-						{
+					case TITLE_MENU_DELETE: {
+						if (delete(m)) {
 							resetMenu(m);
 							generateList(m);
 						}					
@@ -74,14 +64,16 @@ void titleMenu()
 	freeMenu(m);
 }
 
-static void generateList(Menu* m)
-{
+static void generateList(Menu* m) {
 	if (!m) return;
 
-	const int NUM_OF_DIRS = 4;
+	const int NUM_OF_DIRS = 7;
 	const char* dirs[] = {
+		"00030000",
+		"00030001",
 		"00030004",
 		"00030005",
+		"00030011",
 		"00030015",
 		"00030017"
 	};
@@ -96,23 +88,19 @@ static void generateList(Menu* m)
 	int count = 0;	//used to skip to the right page
 
 	//search each category directory /title/XXXXXXXX
-	for (int i = 0; i < NUM_OF_DIRS && done == false; i++)
-	{
+	for (int i = 0; i < NUM_OF_DIRS && done == false; i++) {
 		char* dirPath = (char*)malloc(strlen(dirs[i])+10);
 		sprintf(dirPath, "/title/%s", dirs[i]);
 
 		struct dirent* ent;
 		DIR* dir = opendir(dirPath);
 
-		if (dir)
-		{
-			while ( (ent = readdir(dir)) && done == false)
-			{
+		if (dir) {
+			while ( (ent = readdir(dir)) && done == false) {
 				if (strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0)
 					continue;
 
-				if (ent->d_type == DT_DIR)
-				{
+				if (ent->d_type == DT_DIR) {
 					//scan content folder /title/XXXXXXXX/content
 					char* contentPath = (char*)malloc(strlen(dirPath) + strlen(ent->d_name) + 20);
 					sprintf(contentPath, "%s/%s/content", dirPath, ent->d_name);
@@ -120,29 +108,23 @@ static void generateList(Menu* m)
 					struct dirent* subent;
 					DIR* subdir = opendir(contentPath);
 
-					if (subdir)
-					{
-						while ( (subent = readdir(subdir)) && done == false)
-						{
+					if (subdir) {
+						while ( (subent = readdir(subdir)) && done == false) {
 							if (strcmp(".", subent->d_name) == 0 || strcmp("..", subent->d_name) == 0)
 								continue;
 
-							if (subent->d_type != DT_DIR)
-							{
+							if (subent->d_type != DT_DIR) {
 								//found .app file
-								if (strstr(subent->d_name, ".app") != NULL)
-								{
+								if (strstr(subent->d_name, ".app") != NULL) {
 									//current item is not on page
 									if (count < m->page * ITEMS_PER_PAGE)
 										count += 1;
 									
-									else
-									{
+									else {
 										if (m->itemCount >= ITEMS_PER_PAGE)
 											done = true;
 										
-										else
-										{
+										else {
 											//found requested title
 											char* path = (char*)malloc(strlen(contentPath) + strlen(subent->d_name) + 10);
 											sprintf(path, "%s/%s", contentPath, subent->d_name);
@@ -179,14 +161,12 @@ static void generateList(Menu* m)
 	printMenu(m);
 }
 
-static void printItem(Menu* m)
-{
+static void printItem(Menu* m) {
 	if (!m) return;
 	printRomInfo(m->items[m->cursor].value);
 }
 
-static int subMenu()
-{
+static int subMenu() {
 	int result = -1;
 
 	Menu* m = newMenu();
@@ -197,8 +177,7 @@ static int subMenu()
 
 	printMenu(m);
 
-	while (1)
-	{
+	while (1) {
 		swiWaitForVBlank();
 		scanKeys();
 
@@ -208,8 +187,7 @@ static int subMenu()
 		if (keysDown() & KEY_B)
 			break;
 
-		else if (keysDown() & KEY_A)
-		{
+		else if (keysDown() & KEY_A) {
 			result = m->cursor;
 			break;
 		}
@@ -219,8 +197,7 @@ static int subMenu()
 	return result;
 }
 
-static void backup(Menu* m)
-{
+static void backup(Menu* m) {
 	char* fpath = m->items[m->cursor].value;
 	char* backname = NULL;
 
@@ -242,8 +219,7 @@ static void backup(Menu* m)
 		sprintf(dstpath, "%s/%s", BACKUP_PATH, backname);
 
 		int try = 1;
-		while (dirExists(dstpath))
-		{
+		while (dirExists(dstpath)) {
 			try += 1;
 			sprintf(backname, "%s-%s(%d)", label, gamecode, try);
 			sprintf(dstpath, "%s/%s", BACKUP_PATH, backname);
@@ -263,8 +239,7 @@ static void backup(Menu* m)
 		free(msg);
 	}
 
-	if (choice == YES)
-	{
+	if (choice == YES) {
 		u32 tid_low = 1;
 		u32 tid_high = 1;
 		getTitleId(h, &tid_low, &tid_high);
@@ -272,12 +247,9 @@ static void backup(Menu* m)
 		char* srcpath = (char*)malloc(strlen("/title/") + 32);
 		sprintf(srcpath, "/title/%08x/%08x", (unsigned int)tid_high, (unsigned int)tid_low);
 
-		if (getSDCardFree() < getDirSize(srcpath))
-		{
+		if (getSDCardFree() < getDirSize(srcpath)) {
 			messageBox("Not enough space on SD card.");
-		}
-		else
-		{
+		} else {
 			char* dstpath = (char*)malloc(strlen(BACKUP_PATH) + strlen(backname) + 8);
 			sprintf(dstpath, "%s/%s", BACKUP_PATH, backname);
 
@@ -297,9 +269,6 @@ static void backup(Menu* m)
 
 			mkdir(dstpath, 0777);		// /titlebackup/App Name - XXXX/tid_high/tid_low
 
-//			iprintf("dst %s\nsrc %s", dstpath, srcpath);
-//			keyWait(KEY_A);
-
 			clearScreen(&bottomScreen);
 
 			if (!copyDir(srcpath, dstpath))
@@ -317,8 +286,7 @@ static void backup(Menu* m)
 	free(h);
 }
 
-static bool delete(Menu* m)
-{
+static bool delete(Menu* m) {
 	if (!m) return false;
 
 	char* fpath = m->items[m->cursor].value;
@@ -339,32 +307,22 @@ static bool delete(Menu* m)
 		free(msg);
 	}
 
-	if (choice == YES)
-	{
-		if (!fpath)
-		{
+	if (choice == YES) {
+		if (!fpath) {
 			messageBox("Failed to delete title.\n");
-		}
-		else
-		{
+		} else {
 			char dirPath[64];
 			sprintf(dirPath, "%.24s", fpath);
 
-			if (!dirExists(dirPath))
-			{
+			if (!dirExists(dirPath)) {
 				messageBox("Failed to delete title.\n");
-			}
-			else
-			{
+			} else {
 				clearScreen(&bottomScreen);
 
-				if (deleteDir(dirPath))
-				{
+				if (deleteDir(dirPath)) {
 					result = true;
 					messagePrint("\nTitle deleted.\n");
-				}
-				else
-				{
+				} else {
 					messagePrint("\nTitle could not be deleted.\n");
 				}
 			}
