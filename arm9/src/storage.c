@@ -254,7 +254,7 @@ bool copyDir(char const* src, char const* dst) {
 bool deleteDir(char const* path) {
 	if (!path) return false;
 
-	if ((strcmp("/", path) == 0) || strcmp("sd:/sys/", path) == 0) || strcmp("sd:/_nds/", path) == 0) || strcmp("sd:/roms/", path) == 0)) {
+	if ((strcmp("/", path) == 0) || (strcmp("sd:/sys/", path) == 0) || (strcmp("sd:/_nds/", path) == 0) || (strcmp("sd:/roms/", path) == 0)) {
 		//oh fuck no
 		return false;
 	}
