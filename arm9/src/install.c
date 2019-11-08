@@ -21,12 +21,10 @@ static bool _titleIsUsed(tDSiHeader* h)
 }
 
 //patch homebrew roms if gameCode is #### or null
-static bool _patchGameCode(tDSiHeader* h)
-{
+static bool _patchGameCode(tDSiHeader* h) {
 	if (!h) return false;
 
-	if ((strcmp(h->ndshdr.gameCode, "####") == 0 && h->tid_low == 0x23232323) || (!*h->ndshdr.gameCode && h->tid_low == 0))
-	{
+	if ((strcmp(h->ndshdr.gameCode, "####") == 0 && h->tid_low == 0x23232323) || (!*h->ndshdr.gameCode && h->tid_low == 0)) {
 		iprintf("Fixing Game Code...");
 		swiWaitForVBlank();
 
@@ -55,12 +53,10 @@ static bool _patchGameCode(tDSiHeader* h)
 	return false;
 }
 
-static bool _iqueHack(tDSiHeader* h)
-{
+static bool _iqueHack(tDSiHeader* h) {
 	if (!h) return false;
 
-	if (h->ndshdr.reserved1[8] == 0x80)
-	{
+	if (h->ndshdr.reserved1[8] == 0x80) {
 		iprintf("iQue header patch...");	
 		
 		h->ndshdr.reserved1[8] = 0x00;
@@ -74,12 +70,10 @@ static bool _iqueHack(tDSiHeader* h)
 	return false;
 }
 
-static unsigned long long _getSaveDataSize(tDSiHeader* h)
-{
+static unsigned long long _getSaveDataSize(tDSiHeader* h) {
 	unsigned long long size = 0;
 
-	if (h)
-	{
+	if (h) {
 		size += h->public_sav_size;
 		size += h->private_sav_size;
 
@@ -91,13 +85,11 @@ static unsigned long long _getSaveDataSize(tDSiHeader* h)
 	return size;
 }
 
-static bool _checkSdSpace(unsigned long long size)
-{
+static bool _checkSdSpace(unsigned long long size) {
 	iprintf("Enough room on SD card?...");
 	swiWaitForVBlank();
 
-	if (getSDCardFree() < size)
-	{
+	if (getSDCardFree() < size) {
 		iprintf("\x1B[31m");	//red
 		iprintf("No\n");
 		iprintf("\x1B[47m");	//white
@@ -110,13 +102,11 @@ static bool _checkSdSpace(unsigned long long size)
 	return true;
 }
 
-static bool _checkDsiSpace(unsigned long long size)
-{
+static bool _checkDsiSpace(unsigned long long size) {
 	iprintf("Enough room on DSi?...");
 	swiWaitForVBlank();
 
-	if (getDsiFree() < size)
-	{
+	if (getDsiFree() < size) {
 		iprintf("\x1B[31m");	//red
 		iprintf("No\n");
 		iprintf("\x1B[47m");	//white
@@ -129,13 +119,11 @@ static bool _checkDsiSpace(unsigned long long size)
 	return true;
 }
 
-static bool _openMenuSlot()
-{
+static bool _openMenuSlot() {
 	iprintf("Open DSi menu slot?...");
 	swiWaitForVBlank();
 
-	if (getMenuSlotsFree() <= 0)
-	{
+	if (getMenuSlotsFree() <= 0) {
 		iprintf("\x1B[31m");	//red
 		iprintf("No\n");
 		iprintf("\x1B[47m");	//white
@@ -148,36 +136,28 @@ static bool _openMenuSlot()
 	return true;
 }
 
-static void _createPublicSav(tDSiHeader* h, char* dataPath)
-{
+static void _createPublicSav(tDSiHeader* h, char* dataPath) {
 	if (!h) return;
 
-	if (h->public_sav_size > 0)
-	{
+	if (h->public_sav_size > 0) {
 		iprintf("Creating public.sav...");
 		swiWaitForVBlank();
 
-		if (!dataPath)
-		{
+		if (!dataPath) {
 			iprintf("\x1B[31m");	//red
 			iprintf("Failed\n");
 			iprintf("\x1B[47m");	//white
-		}
-		else
-		{
+		} else {
 			char* publicPath = (char*)malloc(strlen(dataPath) + strlen("/public.sav") + 1);
 			sprintf(publicPath, "%s/public.sav", dataPath);
 
 			FILE* f = fopen(publicPath, "wb");
 
-			if (!f)
-			{
+			if (!f) {
 				iprintf("\x1B[31m");	//red
 				iprintf("Failed\n");
 				iprintf("\x1B[47m");	//white
-			}
-			else
-			{
+			} else {
 				fseek(f, h->public_sav_size-1, SEEK_SET);
 				fputc(0, f);
 				initFatHeader(f);
@@ -193,36 +173,28 @@ static void _createPublicSav(tDSiHeader* h, char* dataPath)
 	}
 }
 
-static void _createPrivateSav(tDSiHeader* h, char* dataPath)
-{
+static void _createPrivateSav(tDSiHeader* h, char* dataPath) {
 	if (!h) return;
 
-	if (h->private_sav_size > 0)
-	{
+	if (h->private_sav_size > 0) {
 		iprintf("Creating private.sav...");
 		swiWaitForVBlank();
 
-		if (!dataPath)
-		{
+		if (!dataPath) {
 			iprintf("\x1B[31m");	//red
 			iprintf("Failed\n");
 			iprintf("\x1B[47m");	//white
-		}
-		else
-		{
+		} else {
 			char* privatePath = (char*)malloc(strlen(dataPath) + strlen("/private.sav") + 1);
 			sprintf(privatePath, "%s/private.sav", dataPath);
 
 			FILE* f = fopen(privatePath, "wb");
 
-			if (!f)
-			{
+			if (!f) {
 				iprintf("\x1B[31m");	//red
 				iprintf("Failed\n");
 				iprintf("\x1B[47m");	//white
-			}
-			else
-			{
+			} else {
 				fseek(f, h->private_sav_size-1, SEEK_SET);
 				fputc(0, f);
 				initFatHeader(f);
@@ -238,36 +210,28 @@ static void _createPrivateSav(tDSiHeader* h, char* dataPath)
 	}
 }
 
-static void _createBannerSav(tDSiHeader* h, char* dataPath)
-{
+static void _createBannerSav(tDSiHeader* h, char* dataPath) {
 	if (!h) return;
 
-	if (h->appflags & 0x4)
-	{
+	if (h->appflags & 0x4) {
 		iprintf("Creating banner.sav...");
 		swiWaitForVBlank();
 
-		if (!dataPath)
-		{
+		if (!dataPath) {
 			iprintf("\x1B[31m");	//red
 			iprintf("Failed\n");
 			iprintf("\x1B[47m");	//white
-		}
-		else
-		{
+		} else {
 			char* bannerPath = (char*)malloc(strlen(dataPath) + strlen("/banner.sav") + 1);
 			sprintf(bannerPath, "%s/banner.sav", dataPath);
 
 			FILE* f = fopen(bannerPath, "wb");
 
-			if (!f)
-			{
+			if (!f) {
 				iprintf("\x1B[31m");	//red
 				iprintf("Failed\n");
 				iprintf("\x1B[47m");	//white
-			}
-			else
-			{
+			} else {
 				fseek(f, 0x4000 - 1, SEEK_SET);
 				fputc(0, f);
 
@@ -282,7 +246,7 @@ static void _createBannerSav(tDSiHeader* h, char* dataPath)
 	}
 }
 
-bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool Install17) {
+bool install(char* fpath, bool Install00, bool Install01, bool Install04, bool Install05, bool Install11, bool Install15, bool Install17) {
 	bool result = false;
 
 	//confirmation message
@@ -332,38 +296,38 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 		}
 
 	iprintf("Patching install location...");
-	if (Install04) {
+	if (Install00) {
+			swiWaitForVBlank();
+			h->tid_high = 0x00030000;
+			fixHeader = true;
+	} else if (Install01) {
+			swiWaitForVBlank();
+			h->tid_high = 0x00030001;
+			fixHeader = true;
+	} else if (Install04) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030004;
-			iprintf("\x1B[42m");	//green
-			iprintf("Done");
-			iprintf("\x1B[47m");	//white
 			fixHeader = true;
 	} else if (Install05) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030005;
-			iprintf("\x1B[42m");	//green
-			iprintf("Done");
-			iprintf("\x1B[47m");	//white
+			fixHeader = true;
+	} else if (Install11) {
+			swiWaitForVBlank();
+			h->tid_high = 0x00030011;
 			fixHeader = true;
 	} else if (Install15) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030015;
-			iprintf("\x1B[42m");	//green
-			iprintf("Done");
-			iprintf("\x1B[47m");	//white
 			fixHeader = true;
 	} else if (Install17) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030017;
+			fixHeader = true;
+}
 			iprintf("\x1B[42m");	//green
 			iprintf("Done");
 			iprintf("\x1B[47m");	//white
-			fixHeader = true;
-	} else {
-			iprintf("uh..");
-			swiWaitForVBlank();
-}
 		if (_iqueHack(h))
 			fixHeader = true;
 
@@ -381,11 +345,9 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 			char msg[64];
 			sprintf(msg, "Title %08x is already used.\nInstall anyway?", (unsigned int)h->tid_low);
 
-			if (choicePrint(msg) == NO)
+			if (choicePrint(msg) == NO) {
 				goto error;
-
-			else
-			{
+			} else {
 				iprintf("\nDeleting:\n");
 				deleteDir(dirPath);
 				iprintf("\n");
@@ -421,8 +383,7 @@ bool install(char* fpath, bool Install04, bool Install05, bool Install15, bool I
 					else
 						result = copyFilePart(fpath, 0x3900, fileSize, appPath);
 
-					if (result != 0)
-					{
+					if (result != 0) {
 						iprintf("\x1B[31m");	//red
 						iprintf("Failed\n");
 						iprintf("\x1B[33m");	//yellow
