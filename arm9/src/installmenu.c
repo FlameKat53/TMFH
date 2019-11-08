@@ -8,8 +8,11 @@
 
 enum {
 	INSTALL_MENU_INSTALL,
+	INSTALL_MENU_00,
+	INSTALL_MENU_01,
 	INSTALL_MENU_04,
 	INSTALL_MENU_05,
+	INSTALL_MENU_11,
 	INSTALL_MENU_15,
 	INSTALL_MENU_17,
 	INSTALL_MENU_DELETE,
@@ -23,8 +26,7 @@ static void printItem(Menu* m);
 static int subMenu();
 static bool delete(Menu* m);
 
-static void _setHeader(Menu* m)
-{
+static void _setHeader(Menu* m) {
 	if (!m) return;
 	if (currentDir[0] == '\0')
 		setMenuHeader(m, "/");
@@ -32,33 +34,16 @@ static void _setHeader(Menu* m)
 		setMenuHeader(m, currentDir);
 }
 
-void installMenu()
-{
+void installMenu() {
 	Menu* m = newMenu();
 	_setHeader(m);
 	generateList(m);
-
-	//no files found
-/*	if (m->itemCount <= 0)
 	{
-		clearScreen(&bottomScreen);
-
-		iprintf("\x1B[31m");	//red
-		iprintf("No files found.\n");
-		iprintf("\x1B[47m");	//white
-		iprintf("\nBack - [B]\n");
-
-		keyWait(KEY_B | KEY_A | KEY_START);
-	}
-	else*/
-	{
-		while (1)
-		{
+		while (1) {
 			swiWaitForVBlank();
 			scanKeys();
 
-			if (moveCursor(m))
-			{
+			if (moveCursor(m)) {
 				if (m->changePage != 0)
 					generateList(m);
 
@@ -67,20 +52,16 @@ void installMenu()
 			}
 
 			//back
-			if (keysDown() & KEY_B)
-			{
+			if (keysDown() & KEY_B) {
 				char* ptr = strrchr(currentDir, '/');
 
-				if (ptr)
-				{
+				if (ptr) {
 					*ptr = '\0';
 					_setHeader(m);
 					resetMenu(m);
 					generateList(m);
 					printMenu(m);
-				}
-				else
-				{
+				} else {
 					break;
 				}
 			}
@@ -89,36 +70,39 @@ void installMenu()
 				break;
 
 			//selection
-			else if (keysDown() & KEY_A)
-			{
-				if (m->itemCount > 0)
-				{
-					if (m->items[m->cursor].directory == false)
-					{
+			else if (keysDown() & KEY_A) {
+				if (m->itemCount > 0) {
+					if (m->items[m->cursor].directory == false) {
 						//nds file
-						switch (subMenu())
-						{
+						switch (subMenu()) {
 							case INSTALL_MENU_INSTALL:
-								install(m->items[m->cursor].value, false, false, false, false);
+								install(m->items[m->cursor].value, false, false, false, false, false, false, false);
 								break;
-								
+							case INSTALL_MENU_00:
+								install(m->items[m->cursor].value, true, false, false, false, false, false, false);
+								break;
+							case INSTALL_MENU_01:
+								install(m->items[m->cursor].value, false, true, false, false, false, false, false);
+								break;
 							case INSTALL_MENU_04:
-								install(m->items[m->cursor].value, true, false, false, false);
+								install(m->items[m->cursor].value, false, false, true, false, false, false, false);
 								break;
 							case INSTALL_MENU_05:
-								install(m->items[m->cursor].value, false, true, false, false);
+								install(m->items[m->cursor].value, false, false, false, true, false, false, false);
+								break;
+							case INSTALL_MENU_11:
+								install(m->items[m->cursor].value, false, false, false, false, true, false, false);
 								break;
 							case INSTALL_MENU_15:
-								install(m->items[m->cursor].value, false, false, true, false);
+								install(m->items[m->cursor].value, false, false, false, false, false, true, false);
 								break;
 							case INSTALL_MENU_17:
-								install(m->items[m->cursor].value, false, false, false, true);
+								install(m->items[m->cursor].value, false, false, false, false, false, false, true);
 								break;
 
 							case INSTALL_MENU_DELETE:
 							{
-								if (delete(m))
-								{
+								if (delete(m)) {
 									resetMenu(m);
 									generateList(m);
 								}
@@ -128,9 +112,7 @@ void installMenu()
 							case INSTALL_MENU_BACK:					
 								break;
 						}
-					}
-					else
-					{
+					} else {
 						//directory
 						sprintf(currentDir, "%s", m->items[m->cursor].value);
 						_setHeader(m);
@@ -147,8 +129,7 @@ void installMenu()
 	freeMenu(m);
 }
 
-static void generateList(Menu* m)
-{
+static void generateList(Menu* m) {
 	if (!m) return;
 
 	//reset menu
@@ -167,37 +148,30 @@ static void generateList(Menu* m)
 	else
 		dir = opendir(currentDir);	
 
-	if (dir)
-	{
+	if (dir) {
 		int count = 0;
 
-		//scan /dsi/
-		while ( (ent = readdir(dir)) && !done)
-		{
+		//scan directory
+		while ( (ent = readdir(dir)) && !done) {
 			if (strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0)
 				continue;
 
-			if (ent->d_type == DT_DIR)
-			{
+			if (ent->d_type == DT_DIR) {
 				if (count < m->page * ITEMS_PER_PAGE)
 						count += 1;
 			
-				else
-				{
+				else {
 					if (m->itemCount >= ITEMS_PER_PAGE)
 						done = true;
 					
-					else
-					{
+					else {
 						char* fpath = (char*)malloc(strlen(currentDir) + strlen(ent->d_name) + 8);
 						sprintf(fpath, "%s/%s", currentDir, ent->d_name);
 
 						addMenuItem(m, ent->d_name, fpath, 1);
 					}
 				}
-			}
-			else
-			{
+			} else {
 				if (strstr(ent->d_name, ".nds") != NULL ||
 					strstr(ent->d_name, ".app") != NULL ||
 					strstr(ent->d_name, ".dsi") != NULL ||
@@ -212,13 +186,11 @@ static void generateList(Menu* m)
 					if (count < m->page * ITEMS_PER_PAGE)
 						count += 1;
 					
-					else
-					{
+					else {
 						if (m->itemCount >= ITEMS_PER_PAGE)
 							done = true;
 						
-						else
-						{
+						else {
 							char* fpath = (char*)malloc(strlen(currentDir) + strlen(ent->d_name) + 8);
 							sprintf(fpath, "%s/%s", currentDir, ent->d_name);
 
@@ -243,8 +215,7 @@ static void generateList(Menu* m)
 	printMenu(m);
 }
 
-static void printItem(Menu* m)
-{
+static void printItem(Menu* m) {
 	if (!m) return;
 	if (m->itemCount <= 0) return;
 
@@ -254,15 +225,17 @@ static void printItem(Menu* m)
 		printRomInfo(m->items[m->cursor].value);
 }
 
-static int subMenu()
-{
+static int subMenu() {
 	int result = -1;
 
 	Menu* m = newMenu();
 
 	addMenuItem(m, "Install to default", NULL, 0);
+	addMenuItem(m, "Install to 00", NULL, 0);
+	addMenuItem(m, "Install to 01", NULL, 0);
 	addMenuItem(m, "Install to 04", NULL, 0);
 	addMenuItem(m, "Install to 05", NULL, 0);
+	addMenuItem(m, "Install to 11", NULL, 0);
 	addMenuItem(m, "Install to 15", NULL, 0);
 	addMenuItem(m, "Install to 17", NULL, 0);
 	addMenuItem(m, "Delete", NULL, 0);
@@ -270,22 +243,19 @@ static int subMenu()
 
 	printMenu(m);
 
-	while (1)
-	{
+	while (1) {
 		swiWaitForVBlank();
 		scanKeys();
 
 		if (moveCursor(m))
 			printMenu(m);
 
-		if (keysDown() & KEY_B)
-		{
+		if (keysDown() & KEY_B) {
 			result = -1;
 			break;
 		}
 
-		else if (keysDown() & KEY_A)
-		{
+		else if (keysDown() & KEY_A) {
 			result = m->cursor;
 			break;
 		}
@@ -295,8 +265,7 @@ static int subMenu()
 	return result;
 }
 
-static bool delete(Menu* m)
-{
+static bool delete(Menu* m) {
 	if (!m) return false;
 	
 	char* fpath = m->items[m->cursor].value;
@@ -313,21 +282,14 @@ static bool delete(Menu* m)
 		free(msg);
 	}
 
-	if (choice == YES)
-	{
-		if (!fpath)
-		{
+	if (choice == YES) {
+		if (!fpath) {
 			messageBox("\x1B[31mCould not delete file.\x1B[47m");
-		}
-		else
-		{
-			if (remove(fpath) == 0)
-			{
+		} else {
+			if (remove(fpath) == 0) {
 				result = true;
 				messageBox("\x1B[42mFile deleted.\x1B[47m");
-			}
-			else
-			{
+			} else {
 				messageBox("\x1B[31mCould not delete file.\x1B[47m");
 			}
 		}		
