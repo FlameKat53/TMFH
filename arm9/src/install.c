@@ -10,8 +10,7 @@
 
 bool bruh = false;
 
-static bool _titleIsUsed(tDSiHeader* h)
-{
+static bool _titleIsUsed(tDSiHeader* h) {
 	if (!h) return false;
 
 	char path[64];
@@ -246,7 +245,7 @@ static void _createBannerSav(tDSiHeader* h, char* dataPath) {
 	}
 }
 
-bool install(char* fpath, bool Install00, bool Install01, bool Install04, bool Install05, bool Install11, bool Install15, bool Install17) {
+bool install(char* fpath, int InstallPlace) {
 	bool result = false;
 
 	//confirmation message
@@ -296,31 +295,31 @@ bool install(char* fpath, bool Install00, bool Install01, bool Install04, bool I
 		}
 
 	iprintf("Patching install location...");
-	if (Install00) {
+	if (InstallPlace == 1) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030000;
 			fixHeader = true;
-	} else if (Install01) {
+	} else if (InstallPlace == 2) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030001;
 			fixHeader = true;
-	} else if (Install04) {
+	} else if (InstallPlace == 3) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030004;
 			fixHeader = true;
-	} else if (Install05) {
+	} else if (InstallPlace == 4) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030005;
 			fixHeader = true;
-	} else if (Install11) {
+	} else if (InstallPlace == 5) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030011;
 			fixHeader = true;
-	} else if (Install15) {
+	} else if (InstallPlace == 6) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030015;
 			fixHeader = true;
-	} else if (Install17) {
+	} else if (InstallPlace == 7) {
 			swiWaitForVBlank();
 			h->tid_high = 0x00030017;
 			fixHeader = true;
@@ -406,14 +405,11 @@ bool install(char* fpath, bool Install00, bool Install01, bool Install04, bool I
 						iprintf("Padding banner...");
 						swiWaitForVBlank();
 
-						if (padFile(appPath, 0x7C0) == false)
-						{
+						if (padFile(appPath, 0x7C0) == false) {
 							iprintf("\x1B[31m");	//red
 							iprintf("Failed\n");
 							iprintf("\x1B[47m");	//white
-						}
-						else
-						{
+						} else {
 							iprintf("\x1B[42m");	//green
 							iprintf("Done\n");
 							iprintf("\x1B[47m");	//white
@@ -421,10 +417,8 @@ bool install(char* fpath, bool Install00, bool Install01, bool Install04, bool I
 					}
 				}
 
-				//update header
-				{
-					if (fixHeader)
-					{
+				//update header {
+					if (fixHeader) {
 						iprintf("Fixing header...");
 						swiWaitForVBlank();
 
@@ -438,14 +432,11 @@ bool install(char* fpath, bool Install00, bool Install01, bool Install04, bool I
 
 						FILE* f = fopen(appPath, "r+");
 
-						if (!f)
-						{
+						if (!f) {
 							iprintf("\x1B[31m");	//red
 							iprintf("Failed\n");
 							iprintf("\x1B[47m");	//white
-						}
-						else
-						{
+						} else {
 							fseek(f, 0, SEEK_SET);
 							fwrite(h, sizeof(tDSiHeader), 1, f);
 
