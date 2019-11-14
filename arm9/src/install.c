@@ -417,7 +417,8 @@ bool install(char* fpath, int InstallPlace) {
 					}
 				}
 
-				//update header {
+				//update header 
+				{
 					if (fixHeader) {
 						iprintf("Fixing header...");
 						swiWaitForVBlank();
@@ -464,8 +465,8 @@ bool install(char* fpath, int InstallPlace) {
 						maketmd(appPath, tmdPath, true);
 						}
 					}
-				}
-			}
+				//}
+			//}
 		//}
 
 		//data folder
