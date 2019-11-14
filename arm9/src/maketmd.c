@@ -188,6 +188,6 @@ void maketmd(char* input, char* tmdPath, bool bruh) {
 	fclose(app);
 	fclose(tmd);
 	iprintf("\x1B[42m");	//green
-	iprintf("Done");
+	iprintf("Done\n");
 	iprintf("\x1B[47m");	//white
 }
