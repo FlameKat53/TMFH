@@ -465,8 +465,8 @@ bool install(char* fpath, int InstallPlace) {
 						maketmd(appPath, tmdPath, true);
 						}
 					}
-				//}
-			//}
+				}
+			}
 		//}
 
 		//data folder
