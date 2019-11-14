@@ -76,28 +76,28 @@ void installMenu() {
 						//nds file
 						switch (subMenu()) {
 							case INSTALL_MENU_INSTALL:
-								install(m->items[m->cursor].value, false, false, false, false, false, false, false);
+								install(m->items[m->cursor].value, 0);
 								break;
 							case INSTALL_MENU_00:
-								install(m->items[m->cursor].value, true, false, false, false, false, false, false);
+								install(m->items[m->cursor].value, 1);
 								break;
 							case INSTALL_MENU_01:
-								install(m->items[m->cursor].value, false, true, false, false, false, false, false);
+								install(m->items[m->cursor].value, 2);
 								break;
 							case INSTALL_MENU_04:
-								install(m->items[m->cursor].value, false, false, true, false, false, false, false);
+								install(m->items[m->cursor].value, 3);
 								break;
 							case INSTALL_MENU_05:
-								install(m->items[m->cursor].value, false, false, false, true, false, false, false);
+								install(m->items[m->cursor].value, 4);
 								break;
 							case INSTALL_MENU_11:
-								install(m->items[m->cursor].value, false, false, false, false, true, false, false);
+								install(m->items[m->cursor].value, 5);
 								break;
 							case INSTALL_MENU_15:
-								install(m->items[m->cursor].value, false, false, false, false, false, true, false);
+								install(m->items[m->cursor].value, 6);
 								break;
 							case INSTALL_MENU_17:
-								install(m->items[m->cursor].value, false, false, false, false, false, false, true);
+								install(m->items[m->cursor].value, 7);
 								break;
 
 							case INSTALL_MENU_DELETE:
@@ -159,7 +159,7 @@ static void generateList(Menu* m) {
 			if (ent->d_type == DT_DIR) {
 				if (count < m->page * ITEMS_PER_PAGE)
 						count += 1;
-			
+
 				else {
 					if (m->itemCount >= ITEMS_PER_PAGE)
 						done = true;
