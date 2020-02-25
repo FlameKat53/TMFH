@@ -12,7 +12,7 @@ include $(DEVKITARM)/ds_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 # DATA is a list of directories containing binary files
-# all directories are relative to this makefile
+# all directories are relative to this makefil
 #---------------------------------------------------------------------------------
 BUILD		:=	build
 SOURCES		:=	src  
