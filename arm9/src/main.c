@@ -3,15 +3,37 @@
 #include "message.h"
 #include <time.h>
 
-#define VERSION "0.7.2"
+#define APP_VERSION "Bruh"
 
 enum {
-	MAIN_MENU_INSTALL,
-	MAIN_MENU_TITLES,
-	MAIN_MENU_BACKUP,
-	MAIN_MENU_TEST,
-	MAIN_MENU_EXIT
+	MAIN_MENU_TITLES
 };
+
+void setFontTop() {
+	PrintConsole *console = consoleInit(NULL, 2, BgType_Text4bpp, BgSize_T_256x256, 2, 0, true, true);
+	ConsoleFont font;
+	font.gfx = (u16*)fontTiles;
+	font.pal = (u16*)fontPal;
+	font.numChars = 95;
+	font.numColors =  fontPalLen / 2;
+	font.bpp = 4;
+	font.asciiOffset = 32;
+	font.convertSingleColor = false;
+	consoleSetFont(console, &font);
+}
+
+void setFontSub() {
+	PrintConsole *console = consoleInit(NULL, 2, BgType_Text4bpp, BgSize_T_256x256, 0, 15, false, true);
+	ConsoleFont font;
+	font.gfx = (u16*)fontTiles;
+	font.pal = (u16*)fontPal;
+	font.numChars = 95;
+	font.numColors =  fontPalLen / 2;
+	font.bpp = 4;
+	font.asciiOffset = 32;
+	font.convertSingleColor = false;
+	consoleSetFont(console, &font);
+}
 
 static void _setupScreens() {
 	REG_DISPCNT = MODE_FB0;
@@ -23,8 +45,8 @@ static void _setupScreens() {
 	vramSetBankA(VRAM_A_MAIN_BG);
 	vramSetBankC(VRAM_C_SUB_BG);
 
-	consoleInit(&topScreen,    3, BgType_Text4bpp, BgSize_T_256x256, 31, 0, true,  true);
-	consoleInit(&bottomScreen, 3, BgType_Text4bpp, BgSize_T_256x256, 31, 0, false, true);
+	setFontTop();
+	setFontSub();
 
 	clearScreen(&bottomScreen);
 
@@ -35,19 +57,13 @@ static int _mainMenu(int cursor) {
 	//top screen
 	clearScreen(&topScreen);
 
-	iprintf("\tTitle Manager for HiyaCFW\n");
-	iprintf("\nv%s\n", VERSION);
-	iprintf("\x1b[23;0HJeff - 2018-2019");
+	iprintf("\tRelaunch.nds %s", APP_VERSION);
 
 	//menu
 	Menu* m = newMenu();
-	setMenuHeader(m, "MAIN MENU");
+	setMenuHeader(m, "Everyone is legal");
 
-	addMenuItem(m, "Install", NULL, 0);
 	addMenuItem(m, "Titles", NULL, 0);
-	addMenuItem(m, "Restore", NULL, 0);
-	addMenuItem(m, "Test", NULL, 0);
-	addMenuItem(m, "Shut Down", NULL, 0);
 
 	m->cursor = cursor;
 
@@ -75,12 +91,6 @@ int main(int argc, char **argv) {
 	srand(time(0));
 	_setupScreens();
 
-	//DSi check
-	if (!isDSiMode()) {
-		messageBox("\x1B[31mError:\x1B[33m This app is only for DSi.");
-		return 0;
-	}
-
 	//setup sd card access
 	if (!fatInitDefault()) {
 		messageBox("fatInitDefault()...\x1B[31mFailed\n\x1B[47m");
@@ -95,24 +105,8 @@ int main(int argc, char **argv) {
 		cursor = _mainMenu(cursor);
 
 		switch (cursor) {
-			case MAIN_MENU_INSTALL:
-				installMenu();
-				break;
-
 			case MAIN_MENU_TITLES:
 				titleMenu();
-				break;
-
-			case MAIN_MENU_BACKUP:
-				backupMenu();
-				break;
-
-			case MAIN_MENU_TEST:
-				testMenu();
-				break;
-
-			case MAIN_MENU_EXIT:
-				programEnd = true;
 				break;
 		}
 	}
