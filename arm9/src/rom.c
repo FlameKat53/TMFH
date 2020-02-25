@@ -252,4 +252,5 @@ bool isDsiHeader(tDSiHeader* h)
 	if (!h) return false;
 
 	return ( h->tid_low == (unsigned int)((h->ndshdr.gameCode[0] << 24) | (h->ndshdr.gameCode[1] << 16) | (h->ndshdr.gameCode[2] << 8) | h->ndshdr.gameCode[3]) );
-}
+} // i want this to compile on the other branch
+
